@@ -3,9 +3,10 @@ addpath('C:\Users\z5171263\SimNIBS-4.6\simnibs_env\Lib\site-packages\simnibs\mat
 
 coord_MNI = [-39.1, 51.6, 30.2];
 subdir = 'C:\Users\z5171263\Downloads\E_field_modelling\m2m\m2m_vivien';
-coord_subjectspace = mni2subject_coords(coord_MNI, subdir);
 
+coord_subjectspace = mni2subject_coords(coord_MNI, subdir);
 head_mesh = mesh_load_gmsh4(fullfile(subdir, 'vivien.msh'));
+
 gm_label = 1002;
 gm_triangles = head_mesh.triangles(head_mesh.triangle_regions == gm_label, :);
 gm_nodes_idx = unique(gm_triangles(:));
@@ -43,28 +44,24 @@ midline = [0 1 0];
 midline_tangent = midline - dot(midline, normal) * normal;
 midline_tangent = midline_tangent / norm(midline_tangent);
 
-% Second tangent axis perpendicular to midline_tangent in the cortical plane
-tangent2 = cross(normal, midline_tangent);
-tangent2 = tangent2 / norm(tangent2);
+% Second tangent axis — negative cross product (key fix for correct rotation direction)
+cross_term = -cross(normal, midline_tangent);
+cross_term = cross_term / norm(cross_term);
 
 %% Compute ref points for each angle
 angles = [-45 -22.5 0 22.5 45 67.5 90 112.5 135];
-offset = 20; % mm 
+offset = 20; % mm
 
 fprintf('\n%-15s  %-35s  %-35s\n', 'Condition', 'pos (coil centre)', 'pos_ref (direction reference)');
 fprintf('%s\n', repmat('-', 1, 90));
 
 for i = 1:length(angles)
-    theta = deg2rad(angles(i));
-    
-    % Rotate midline_tangent by theta around the surface normal
-    dir = cos(theta) * midline_tangent + sin(theta) * tangent2;
-    dir = dir / norm(dir);
-    
-    ref_point = target_gm + offset * dir;
-    
+    a = angles(i);
+    coil_vec = cosd(a)*midline_tangent + sind(a)*cross_term;
+    coil_vec = coil_vec / norm(coil_vec);
+    ref_point = target_gm + offset * coil_vec;
     fprintf('CT_A_%-8g   pos=[%6.2f %6.2f %6.2f]   ref=[%6.2f %6.2f %6.2f]\n', ...
-        angles(i), ...
+        a, ...
         target_gm(1), target_gm(2), target_gm(3), ...
         ref_point(1), ref_point(2), ref_point(3));
 end
