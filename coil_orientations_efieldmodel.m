@@ -1,7 +1,9 @@
 addpath('C:\Users\z5171263\SimNIBS-4.5\simnibs_env\Lib\site-packages\simnibs\matlab_tools');
 addpath('C:\Users\z5171263\SimNIBS-4.6\simnibs_env\Lib\site-packages\simnibs\matlab_tools');
 
-coord_MNI = [-39.1, 51.6, 30.2];
+coord_MNI = [-39.1, 51.6, 30.2]; % vivien
+% coord_MNI = [-39.8, 47.1, 27.0]; %steve
+% coord_MNI = [-44, 42.4, 26.5]; %donel
 subdir = 'C:\Users\z5171263\Downloads\E_field_modelling\m2m\m2m_vivien';
 
 coord_subjectspace = mni2subject_coords(coord_MNI, subdir);
